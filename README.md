@@ -53,8 +53,8 @@
    	viper.ReadInConfig()
    
    	qsmysql.SetConfig(viper.Sub("mysql"))
-     defer qsmysql.Close()
-   	master := qsmysql.GetMaster()  // instance of *gorm.DB
+   	qsmysql.Close()
+   	master := qsmysql.GetMaster()
    	reflect.TypeOf(master)
    }
    ```
