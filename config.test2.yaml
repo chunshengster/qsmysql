@@ -1,0 +1,27 @@
+mysql:
+  master:
+    host: localhost
+    port: 3306
+    user: root
+    password:
+    db: test
+    charset: utf8mb4
+    max_idle_conns: 2
+    max_open_conns: 5
+    log_mode: true
+    ## minutes
+    conn_max_lifetime: 60
+  slave:
+    host:
+      - localhost
+      - localhost
+    port: 3306
+    user: root
+    password:
+    db: test
+    charset: utf8mb4
+    max_idle_conns: 2
+    max_open_conns: 5
+    log_mode: true
+    ## minutes
+    conn_max_lifetime: 60
