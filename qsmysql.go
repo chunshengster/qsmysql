@@ -87,6 +87,24 @@ func (q *QSMySQL) SetConfig(v *viper.Viper) error {
 	return nil
 }
 
+func Close() error {
+	return qsmysql.Close()
+}
+
+func (q *QSMySQL) Close() error {
+	if q.master.handler != nil {
+		//TODO: handle the error that Close() returned
+		q.master.handler.Close()
+	}
+	if q.hasslave {
+		for _, h := range q.slave.handlers {
+			h.Close()
+		}
+	}
+	q.viper_conf = nil
+	return nil
+}
+
 /**
 mysql:
   master:
