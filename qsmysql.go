@@ -41,21 +41,25 @@ type mysqlSlave struct {
 }
 
 type connPoolConf struct {
-	max_open_conns, max_idle_conns, conn_max_lifetime int
-	log_mode                                          bool
+	maxOpenConns, maxIdleConns, connMaxLifetime int
+	logMode                                     bool
 }
 
 type QSMySQL struct {
-	master     *mysqlMaster
-	slave      *mysqlSlave
-	viper_conf *viper.Viper
-	hasslave   bool
+	master    *mysqlMaster
+	slave     *mysqlSlave
+	viperConf *viper.Viper
+	hasslave  bool
 }
 
 func init() {
-	qsmysql = new(QSMySQL)
+	qsmysql = New()
 	// qsmysql.master.handler = new(gorm.DB)
 	// qsmysql.slave.handlers = make([]*gorm.DB, 0, 8)
+}
+
+func New() *QSMySQL {
+	return &QSMySQL{}
 }
 
 func SetConfig(v *viper.Viper) error {
@@ -63,26 +67,26 @@ func SetConfig(v *viper.Viper) error {
 }
 
 func (q *QSMySQL) SetConfig(v *viper.Viper) error {
-	qsmysql.viper_conf = v
+	q.viperConf = v
 	if v.IsSet("master") {
-		dsns, conf_orm, err := parseViper(v.Sub("master"))
+		dsns, confOrm, err := parseViper(v.Sub("master"))
 		if err != nil {
 			//todo: more readable log
 			return err
 		}
-		qsmysql.master = new(mysqlMaster)
-		qsmysql.master.dsn = dsns[0]
-		qsmysql.master.conf = conf_orm
+		q.master = new(mysqlMaster)
+		q.master.dsn = dsns[0]
+		q.master.conf = confOrm
 	}
 	if v.IsSet("slave") {
-		dsns, conf_orm, err := parseViper(v.Sub("slave"))
+		dsns, confOrm, err := parseViper(v.Sub("slave"))
 		if err != nil {
 			return err
 		}
-		qsmysql.slave = new(mysqlSlave)
-		qsmysql.hasslave = true
-		qsmysql.slave.dsns = dsns
-		qsmysql.slave.conf = conf_orm
+		q.slave = new(mysqlSlave)
+		q.hasslave = true
+		q.slave.dsns = dsns
+		q.slave.conf = confOrm
 	}
 	return nil
 }
@@ -101,7 +105,7 @@ func (q *QSMySQL) Close() error {
 			h.Close()
 		}
 	}
-	q.viper_conf = nil
+	q.viperConf = nil
 	return nil
 }
 
@@ -181,24 +185,24 @@ func parseViper(v *viper.Viper) (dsns []string, conf connPoolConf, err error) {
 		charset = defaultCharset
 	}
 	if !v.IsSet("max_open_conns") {
-		conf.max_open_conns = defaultMaxConns
+		conf.maxOpenConns = defaultMaxConns
 	} else {
-		conf.max_open_conns = v.GetInt("max_open_conns")
+		conf.maxOpenConns = v.GetInt("max_open_conns")
 	}
 	if !v.IsSet("max_idle_conns") {
-		conf.max_idle_conns = defaultMaxIdleConns
+		conf.maxIdleConns = defaultMaxIdleConns
 	} else {
-		conf.max_idle_conns = v.GetInt("max_idle_conns")
+		conf.maxIdleConns = v.GetInt("max_idle_conns")
 	}
 	if !v.IsSet("conn_max_lifetime") {
-		conf.conn_max_lifetime = defaultMaxLifetime
+		conf.connMaxLifetime = defaultMaxLifetime
 	} else {
-		conf.conn_max_lifetime = v.GetInt("conn_max_lifetime")
+		conf.connMaxLifetime = v.GetInt("conn_max_lifetime")
 	}
 	if !v.IsSet("log_mode") {
-		conf.log_mode = defaultLogMode
+		conf.logMode = defaultLogMode
 	} else {
-		conf.log_mode = v.GetBool("log_mode")
+		conf.logMode = v.GetBool("log_mode")
 	}
 
 	if !v.IsSet("charset") {
@@ -225,10 +229,10 @@ func ConnDB(dsn string, conf connPoolConf) (*gorm.DB, error) {
 		//TODO: Log error
 		return nil, err
 	}
-	db.DB().SetMaxOpenConns(conf.max_open_conns)
-	db.DB().SetMaxIdleConns(conf.max_idle_conns)
-	db.DB().SetConnMaxLifetime(time.Duration(conf.conn_max_lifetime) * time.Minute)
-	db.LogMode(conf.log_mode)
+	db.DB().SetMaxOpenConns(conf.maxOpenConns)
+	db.DB().SetMaxIdleConns(conf.maxIdleConns)
+	db.DB().SetConnMaxLifetime(time.Duration(conf.connMaxLifetime) * time.Minute)
+	db.LogMode(conf.logMode)
 	return db, nil
 }
 
@@ -305,6 +309,18 @@ func (q *QSMySQL) GetSlave() *gorm.DB {
 
 //todo: exportStats should export the stats of *grom.DB within a seprated goroutine
 func (q *QSMySQL) exportStats() {
+
+	if q.master.handler != nil {
+
+	}
+	if q.hasslave && len(q.slave.handlers) > 0 {
+
+	}
+
+}
+
+func getStats(g *gorm.DB) {
+	_ = g.DB().Stats
 
 }
 

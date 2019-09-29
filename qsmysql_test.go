@@ -16,11 +16,11 @@ var conf []*viper.Viper
 // }
 
 func TestQSMySQL_setConfig(t *testing.T) {
-	config_files := []string{
+	configFiles := []string{
 		"./config.test1.yaml",
 		"./config.test2.yaml",
 	}
-	for _, c := range config_files {
+	for _, c := range configFiles {
 		viper.SetConfigFile(c)
 		viper.ReadInConfig()
 		x := viper.Sub("mysql")
@@ -28,9 +28,9 @@ func TestQSMySQL_setConfig(t *testing.T) {
 		viper.Reset()
 	}
 	type fields struct {
-		master     *mysqlMaster
-		slave      *mysqlSlave
-		viper_conf *viper.Viper
+		master    *mysqlMaster
+		slave     *mysqlSlave
+		viperConf *viper.Viper
 	}
 	type args struct {
 		v *viper.Viper
@@ -48,23 +48,23 @@ func TestQSMySQL_setConfig(t *testing.T) {
 					handler: nil,
 					dsn:     "test_order:61NNT9RJSLwGelGy@tcp(rm-bp1y256043o82d4wa.mysql.rds.aliyuncs.com:3306)/mutual_insure2?charset=utf8mb4&parseTime=True&loc=Local",
 					conf: connPoolConf{
-						max_open_conns:    5,
-						max_idle_conns:    2,
-						conn_max_lifetime: 60,
-						log_mode:          true,
+						maxOpenConns:    5,
+						maxIdleConns:    2,
+						connMaxLifetime: 60,
+						logMode:         true,
 					},
 				},
 				slave: &mysqlSlave{
 					handlers: nil,
 					dsns:     []string{"test_order:61NNT9RJSLwGelGy@tcp(rm-bp1y256043o82d4wa.mysql.rds.aliyuncs.com:3306)/mutual_insure2?charset=utf8mb4&parseTime=True&loc=Local"},
 					conf: connPoolConf{
-						max_open_conns:    5,
-						max_idle_conns:    2,
-						conn_max_lifetime: 60,
-						log_mode:          true,
+						maxOpenConns:    5,
+						maxIdleConns:    2,
+						connMaxLifetime: 60,
+						logMode:         true,
 					},
 				},
-				viper_conf: conf[0],
+				viperConf: conf[0],
 			},
 			args:    args{v: conf[0]},
 			wantErr: false,
@@ -76,10 +76,10 @@ func TestQSMySQL_setConfig(t *testing.T) {
 					handler: nil,
 					dsn:     "test_order:61NNT9RJSLwGelGy@tcp(rm-bp1y256043o82d4wa.mysql.rds.aliyuncs.com:3306)/mutual_insure2?charset=utf8mb4&parseTime=True&loc=Local",
 					conf: connPoolConf{
-						max_open_conns:    5,
-						max_idle_conns:    2,
-						conn_max_lifetime: 60,
-						log_mode:          true,
+						maxOpenConns:    5,
+						maxIdleConns:    2,
+						connMaxLifetime: 60,
+						logMode:         true,
 					},
 				},
 				slave: &mysqlSlave{
@@ -87,13 +87,13 @@ func TestQSMySQL_setConfig(t *testing.T) {
 					dsns: []string{"test_order:61NNT9RJSLwGelGy@tcp(rm-bp1y256043o82d4wa.mysql.rds.aliyuncs.com:3306)/mutual_insure2?charset=utf8mb4&parseTime=True&loc=Local",
 						"test_order:61NNT9RJSLwGelGy@tcp(rm-bp1y256043o82d4wb.mysql.rds.aliyuncs.com:3306)/mutual_insure2?charset=utf8mb4&parseTime=True&loc=Local"},
 					conf: connPoolConf{
-						max_open_conns:    5,
-						max_idle_conns:    2,
-						conn_max_lifetime: 60,
-						log_mode:          true,
+						maxOpenConns:    5,
+						maxIdleConns:    2,
+						connMaxLifetime: 60,
+						logMode:         true,
 					},
 				},
-				viper_conf: conf[1],
+				viperConf: conf[1],
 			},
 			args:    args{v: conf[1]},
 			wantErr: false,
@@ -102,9 +102,9 @@ func TestQSMySQL_setConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			q := &QSMySQL{
-				master:     tt.fields.master,
-				slave:      tt.fields.slave,
-				viper_conf: tt.fields.viper_conf,
+				master:    tt.fields.master,
+				slave:     tt.fields.slave,
+				q: tt.fields.viperConf,
 			}
 			t.Logf("slave.slave.dsns = %v", q.slave.dsns)
 			if err := q.SetConfig(tt.args.v); (err != nil) != tt.wantErr {
@@ -122,8 +122,8 @@ func TestQSMySQL_setConfig(t *testing.T) {
 			if !reflect.DeepEqual(q.slave.conf, tt.fields.slave.conf) {
 				t.Errorf("q.slave.conf = %v,want %v", q.slave.conf, tt.fields.slave.conf)
 			}
-			if !reflect.DeepEqual(q.viper_conf, tt.fields.viper_conf) {
-				t.Errorf("q.viper_conf = %v, want %v", q.viper_conf, tt.fields.viper_conf)
+			if !reflect.DeepEqual(q.q, tt.fields.viperConf) {
+				t.Errorf("q.viper_conf = %v, want %v", q.q, tt.fields.viperConf)
 			}
 
 		})
@@ -131,11 +131,11 @@ func TestQSMySQL_setConfig(t *testing.T) {
 }
 
 func TestSetConfig(t *testing.T) {
-	config_files := []string{
+	configFiles := []string{
 		"./config.test1.yaml",
 		"./config.test2.yaml",
 	}
-	for _, c := range config_files {
+	for _, c := range configFiles {
 		viper.SetConfigFile(c)
 		viper.ReadInConfig()
 		x := viper.Sub("mysql")
@@ -170,11 +170,11 @@ func TestSetConfig(t *testing.T) {
 }
 
 func Test_parseViper(t *testing.T) {
-	config_files := []string{
+	configFiles := []string{
 		"./config.test1.yaml",
 		"./config.test2.yaml",
 	}
-	for _, c := range config_files {
+	for _, c := range configFiles {
 		viper.SetConfigFile(c)
 		viper.ReadInConfig()
 		x := viper.Sub("mysql")
@@ -196,10 +196,10 @@ func Test_parseViper(t *testing.T) {
 			args:     args{v: conf[0].Sub("master")},
 			wantDsns: []string{"test_order:61NNT9RJSLwGelGy@tcp(rm-bp1y256043o82d4wa.mysql.rds.aliyuncs.com:3306)/mutual_insure2?charset=utf8mb4&parseTime=True&loc=Local"},
 			wantConf: connPoolConf{
-				max_open_conns:    5,
-				max_idle_conns:    2,
-				conn_max_lifetime: 60,
-				log_mode:          true,
+				maxOpenConns:    5,
+				maxIdleConns:    2,
+				connMaxLifetime: 60,
+				logMode:         true,
 			},
 			wantErr: false,
 		},
@@ -208,10 +208,10 @@ func Test_parseViper(t *testing.T) {
 			args:     args{v: conf[0].Sub("slave")},
 			wantDsns: []string{"test_order:61NNT9RJSLwGelGy@tcp(rm-bp1y256043o82d4wa.mysql.rds.aliyuncs.com:3306)/mutual_insure2?charset=utf8mb4&parseTime=True&loc=Local"},
 			wantConf: connPoolConf{
-				max_open_conns:    5,
-				max_idle_conns:    2,
-				conn_max_lifetime: 60,
-				log_mode:          true,
+				maxOpenConns:    5,
+				maxIdleConns:    2,
+				connMaxLifetime: 60,
+				logMode:         true,
 			},
 			wantErr: false,
 		},
@@ -221,10 +221,10 @@ func Test_parseViper(t *testing.T) {
 			wantDsns: []string{"test_order:61NNT9RJSLwGelGy@tcp(rm-bp1y256043o82d4wa.mysql.rds.aliyuncs.com:3306)/mutual_insure2?charset=utf8mb4&parseTime=True&loc=Local",
 				"test_order:61NNT9RJSLwGelGy@tcp(rm-bp1y256043o82d4wb.mysql.rds.aliyuncs.com:3306)/mutual_insure2?charset=utf8mb4&parseTime=True&loc=Local"},
 			wantConf: connPoolConf{
-				max_open_conns:    5,
-				max_idle_conns:    2,
-				conn_max_lifetime: 60,
-				log_mode:          true,
+				maxOpenConns:    5,
+				maxIdleConns:    2,
+				connMaxLifetime: 60,
+				logMode:         true,
 			},
 			wantErr: false,
 		},
@@ -262,10 +262,10 @@ func Test_connDB(t *testing.T) {
 			args: args{
 				dsn: "test_order:61NNT9RJSLwGelGy@tcp(rm-bp1y256043o82d4wa.mysql.rds.aliyuncs.com:3306)/mutual_insure2?charset=utf8mb4&parseTime=True&loc=Local",
 				conf: connPoolConf{
-					max_open_conns:    5,
-					max_idle_conns:    2,
-					conn_max_lifetime: 60,
-					log_mode:          true,
+					maxOpenConns:    5,
+					maxIdleConns:    2,
+					connMaxLifetime: 60,
+					logMode:         true,
 				},
 			},
 			want:    nil,
@@ -279,20 +279,20 @@ func Test_connDB(t *testing.T) {
 				t.Errorf("connDB() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			t.Logf("%v", got.DB().Stats().MaxOpenConnections == tt.args.conf.max_open_conns)
-			if got.DB().Stats().MaxOpenConnections != tt.args.conf.max_open_conns {
-				t.Errorf("connPoolConf max_open_conns error = %v, want %v", got.DB().Stats().MaxOpenConnections, tt.args.conf.max_open_conns)
+			t.Logf("%v", got.DB().Stats().MaxOpenConnections == tt.args.conf.maxOpenConns)
+			if got.DB().Stats().MaxOpenConnections != tt.args.conf.maxOpenConns {
+				t.Errorf("connPoolConf max_open_conns error = %v, want %v", got.DB().Stats().MaxOpenConnections, tt.args.conf.maxOpenConns)
 			}
 		})
 	}
 }
 
 func TestGetMaster(t *testing.T) {
-	config_files := []string{
+	configFiles := []string{
 		"./config.test1.yaml",
 		// "./config.test2.yaml",
 	}
-	for _, c := range config_files {
+	for _, c := range configFiles {
 		viper.SetConfigFile(c)
 		viper.ReadInConfig()
 		x := viper.Sub("mysql")
